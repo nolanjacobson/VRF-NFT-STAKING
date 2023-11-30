@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 contract PostRevealNFT is ERC721, Ownable {
     uint256 public nextTokenId;
