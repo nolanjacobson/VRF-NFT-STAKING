@@ -45,7 +45,7 @@ contract DeployAndInteractSPNFT is Script {
         // gotta approve the staking nft to use this before spending
         // spnft.approve(0x1cc0b45c324009629b19414Af77D942B7185C889,1);
         // spNFTStaking.stake(1);
-        // spNFTStaking.claimReward(1);
+        spNFTStaking.claimReward(1);
         // string memory tokenURI = spnft.tokenURI(1);
         // console.log(tokenURI);
 

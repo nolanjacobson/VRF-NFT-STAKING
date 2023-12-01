@@ -5,35 +5,35 @@ metadata revealing approaches. The solution should leverage Chainlink for random
 number generation and allow for two distinct revealing approaches, with the potential to 
 support future approaches.
 
-## Overview
-
-Provide an overview of the project, its purpose, and functionality.
-
 ## Contracts
 
 ### SPNFT.sol
 
-- **Purpose**: Describe what `SPNFT.sol` does (e.g., ERC721 NFT contract for...).
-- **Key Features**: Outline the main features of this contract (e.g., NFT minting, metadata handling).
-- **Interactions**: Explain how this contract interacts with others, if applicable.
+- **Purpose**: SPNFT is an ERC721 contract which is used in both the in-collection and seperate collection reveal approaches.
+- **Key Features**: NFT minting w/ payable option, on-chain base64 encoded metadata, VRF functionality, burning functionality
+- **Interactions**: This contract will either be standalone with the VRF contract or it will standalone with the PostRevealNFT contract depending on
+if the operator (admin) decides on the InCollection or SeperateCollection reveal approach.
 
 ### PostRevealNFT.sol
 
-- **Purpose**: Describe the purpose of `PostRevealNFT.sol`.
-- **Functionality**: Explain its key functionalities (e.g., handling NFTs after reveal).
-- **Interactions**: Note any important interactions with other contracts.
+- **Purpose**: PostRevealNFT is an ERC721 contract which is used solely for the seperate collection reveal approach.
+- **Functionality**: Allows for SPNFT to mint an NFT, on-chain base64 encoded metadata, and VRF functionality.
+- **Interactions**: This contract will always interact with VRF to get the random numbers needed for selecting random pieces of metadata, and will be
+invoked by the SPNFT during the `revealAndTransfer` call in the parent contract.
 
 ### SPNFTStaking.sol
 
 - **Purpose**: Describe the staking functionality provided by `SPNFTStaking.sol`.
-- **Staking Mechanism**: Detail how users can stake their NFTs and earn rewards.
-- **Reward Calculation**: Explain the reward calculation mechanism.
+- **Staking Mechanism**: Users can use this contract with both the in-collection and seperate collection reveal approaches. Users can call `stake(tokenId)`
+and effectively stake their NFT for 5% APY. When the user wants to claim rewards they can call `claim(tokenId)`. Future suggestion would be to add a function
+to release the staked NFT.
+- **Reward Calculation**: `((stakedTime / 1 days) * REWARD_RATE) / 100;` - 5% APY
 
 ### RewardTokenERC20.sol
 
-- **Purpose**: Explain the role of `RewardTokenERC20.sol` (e.g., ERC20 token for staking rewards).
-- **Tokenomics**: Describe the tokenomics, including minting and distribution.
-- **Usage**: Explain how this token is used within the ecosystem (e.g., rewards for staking).
+- **Purpose**: Simple ERC20 token for staking rewards.
+- **Tokenomics**: N/A
+- **Usage**: This token is used as a rewards mechanism for SPNFT stakers.
 
 ## Setup and Deployment
 
