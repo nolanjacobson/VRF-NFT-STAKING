@@ -1,12 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Script, console2} from "forge-std/Script.sol";
+import "forge-std/Script.sol";
+import "../src/SPNFT.sol"; // Adjust the path to your SPNFT contract
 
-contract CounterScript is Script {
-    function setUp() public {}
+contract DeployAndInteractSPNFT is Script {
+    function run() external {
+        vm.startBroadcast(); // Start broadcasting transactions
 
-    function run() public {
-        vm.broadcast();
+        // Deploy the SPNFT contract
+        SPNFT spnft = new SPNFT(/* parameters for the constructor */);
+
+        // Interact with the deployed contract
+        // For example, mint an NFT
+        spnft.mint{value: 1 ether}();
+
+        // More interactions...
+        
+        vm.stopBroadcast(); // Stop broadcasting transactions
     }
 }

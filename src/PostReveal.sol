@@ -7,6 +7,7 @@ import "lib/chainlink-brownie-contracts/contracts/src/v0.8/dev/VRFConsumerBase.s
 import "./Base64.sol";
 
 contract PostRevealNFT is ERC721, Ownable, VRFConsumerBase {
+    using Strings for uint256;
     struct Group {
         bytes32[5] values;
     }
@@ -54,7 +55,6 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBase {
             ]
         );
 
-    using Strings for uint256;
 
     struct AttributeValues {
         bytes32 eyes;
