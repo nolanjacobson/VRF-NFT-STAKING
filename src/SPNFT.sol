@@ -184,7 +184,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         revealedNFTContract = PostRevealNFT(_postRevealNFT);
     }
 
-    function revealAndTransfer(uint256 tokenId) external onlyOwner {
+    function revealAndTransfer(uint256 tokenId) external {
         require(
             isInCollectionReveal == false,
             "This function does not work as the collection is InRevealCollection"
@@ -199,7 +199,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         revealedNFTContract.mint(owner, tokenId);
     }
 
-    function reveal(uint256 tokenId) public onlyOwner {
+    function reveal(uint256 tokenId) public {
         require(
             isInCollectionReveal == true,
             "This function does not work as the collection is not InRevealCollection"

@@ -1,72 +1,43 @@
-## Foundry
+# SCE-Take-Home
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+The goal of this exercise is to design and implement a SP NFT (ERC-721) with different 
+metadata revealing approaches. The solution should leverage Chainlink for random 
+number generation and allow for two distinct revealing approaches, with the potential to 
+support future approaches.
 
-Foundry consists of:
+## Overview
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Provide an overview of the project, its purpose, and functionality.
 
-## Documentation
+## Contracts
 
-https://book.getfoundry.sh/
+### SPNFT.sol
 
-## Usage
+- **Purpose**: Describe what `SPNFT.sol` does (e.g., ERC721 NFT contract for...).
+- **Key Features**: Outline the main features of this contract (e.g., NFT minting, metadata handling).
+- **Interactions**: Explain how this contract interacts with others, if applicable.
 
-### Build
+### PostRevealNFT.sol
 
-```shell
-$ forge build
-```
+- **Purpose**: Describe the purpose of `PostRevealNFT.sol`.
+- **Functionality**: Explain its key functionalities (e.g., handling NFTs after reveal).
+- **Interactions**: Note any important interactions with other contracts.
 
-### Test
+### SPNFTStaking.sol
 
-```shell
-$ forge test
-```
+- **Purpose**: Describe the staking functionality provided by `SPNFTStaking.sol`.
+- **Staking Mechanism**: Detail how users can stake their NFTs and earn rewards.
+- **Reward Calculation**: Explain the reward calculation mechanism.
 
-### Format
+### RewardTokenERC20.sol
 
-```shell
-$ forge fmt
-```
+- **Purpose**: Explain the role of `RewardTokenERC20.sol` (e.g., ERC20 token for staking rewards).
+- **Tokenomics**: Describe the tokenomics, including minting and distribution.
+- **Usage**: Explain how this token is used within the ecosystem (e.g., rewards for staking).
 
-### Gas Snapshots
+## Setup and Deployment
 
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
-
-### Verify Script
+Provide instructions on how to set up and deploy these contracts. Include any prerequisites.
 
 ```
-forge script ./script/DeployAndInteractSPNFT.s.sol --rpc-url https://ethereum-sepolia.blockpi.network/v1/rpc/public --private-key $PRIVATE_KEY --etherscan-api-key $ETHERSCAN_API_KEY --verify --broadcast -vvvv
 ```

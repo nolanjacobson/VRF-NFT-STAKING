@@ -156,17 +156,6 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         revert("Invalid group ID");
     }
 
-    function setTokenAttributes(
-        uint256 tokenId,
-        bytes32 eyes,
-        bytes32 hair,
-        bytes32 nose,
-        bytes32 mouth
-    ) public {
-        require(msg.sender == spNft, "Only the parent contract can call this");
-        _tokenAttributes[tokenId] = AttributeValues(eyes, hair, nose, mouth);
-    }
-
     function _baseURI() internal view virtual override returns (string memory) {
         return "";
     }
