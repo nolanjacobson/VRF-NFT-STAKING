@@ -12,10 +12,10 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
         uint256[5] values;
     }
 
-    Group public eyes = Group(['brown', 'blue', 'gray', 'green', 'hazel']);
-    Group public hair = Group(['blonde', 'brown', 'black', 'red', 'orange']);
-    Group public nose = Group(['big', 'small', 'round', 'skinny', 'pointy']);
-    Group public mouth = Group(['yellow', 'orange', 'pink', 'bronze', 'red']);
+    Group public eyes = Group(["brown", "blue", "gray", "green", "hazel"]);
+    Group public hair = Group(["blonde", "brown", "black", "red", "orange"]);
+    Group public nose = Group(["big", "small", "round", "skinny", "pointy"]);
+    Group public mouth = Group(["yellow", "orange", "pink", "bronze", "red"]);
 
     using Counters for Counters.Counter;
     using Strings for uint256;
@@ -42,8 +42,6 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
 
     bool public isInCollectionReveal;
     mapping(uint256 => bool) public revealed;
-    string private _baseURIextended;
-    string private _notRevealedURI;
 
     constructor(
         address vrfCoordinator, // VRF Coordinator address
@@ -101,10 +99,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
         revealedNFTContract = RevealedNFT(_revealedNFTAddress);
     }
 
-    function revealAndTransfer(
-        uint256 tokenId,
-        address user
-    ) external onlyOwner {
+    function revealAndTransfer(uint256 tokenId) external onlyOwner {
         require(
             isInCollectionReveal == false,
             "This function does not work as the collection is InRevealCollection"
@@ -114,7 +109,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
             "ERC721Metadata: URI query for nonexistent token"
         );
         _burn(tokenId);
-        revealedNFTContract.mint(user);
+        revealedNFTContract.mint(msg.sender);
     }
 
     function reveal(uint256 tokenId) public onlyOwner {
@@ -134,7 +129,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return _baseURIextended;
+        return "";
     }
 
     function setTokenAttributes(
@@ -156,12 +151,23 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        if (!revealed[tokenId]) {
-            return _notRevealedURI;
+        // initially had this as !revealed[tokenId], but there could be a delay in VRF fulfilling the response which updates tokenAttributes
+        if (!_tokenAttributes[tokenId]) {
+            string memory notRevealedJSON = Base64.encode(
+                bytes(
+                    abi.encodePacked(
+                        '{"name": "Mystery Box",',
+                        '"description": "This is an unrevealed mystery box.",',
+                        '"attributes": ['
+                        "]}"
+                    )
+                )
+            );
+            return string(abi.encodePacked("data:application/json;base64,", notRevealedJSON));
         }
 
         AttributeValues memory attributes = _tokenAttributes[tokenId];
-        string memory json = Base64.encode(
+        string memory revealedJSON = Base64.encode(
             bytes(
                 abi.encodePacked(
                     '{"name": "SP',
@@ -186,6 +192,6 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
             )
         );
 
-        return string(abi.encodePacked("data:application/json;base64,", json));
+        return string(abi.encodePacked("data:application/json;base64,", revealedJSON));
     }
 }
