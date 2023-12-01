@@ -24,15 +24,18 @@ contract DeployAndInteractSPNFT is Script {
         // spnft.mint{value: 0.01 ether}();
         // spnft.mint{value: 0.01 ether}();
 
-        try spnft.reveal{gas: 5000000}(1) {
-            // Handle successful execution
-        } catch Error(string memory reason) {
-            // Catch and log custom revert messages
-            console.log("Transaction failed:", reason);
-        } catch {
-            // Catch and log generic reverts
-            console.log("Transaction failed due to revert");
-        }
+        string memory tokenURI = spnft.tokenURI(2);
+        console.log(tokenURI);
+
+        // try spnft.reveal{gas: 5000000}(1) {
+        //     // Handle successful execution
+        // } catch Error(string memory reason) {
+        //     // Catch and log custom revert messages
+        //     console.log("Transaction failed:", reason);
+        // } catch {
+        //     // Catch and log generic reverts
+        //     console.log("Transaction failed due to revert");
+        // }
         // spnft.reveal(1);
         // More interactions...
 

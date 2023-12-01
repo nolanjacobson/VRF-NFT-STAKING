@@ -126,17 +126,16 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         revert("Invalid group ID");
     }
 
-    function requestRandomnessForToken(uint256 tokenId) public {
+    function requestRandomnessForToken(uint256 tokenId) internal {
         // Ensure you have enough LINK and are subscribed to the VRF service
         // requestRandomWords(keyHash, subscriptionId, requestConfirmations, callbackGasLimit, numWords)
-        uint256 requestId = COORDINATOR
-            .requestRandomWords(
-                s_keyHash,
-                s_subscriptionId,
-                s_requestConfirmations,
-                s_callbackGasLimit,
-                s_numWords
-            );
+        uint256 requestId = COORDINATOR.requestRandomWords(
+            s_keyHash,
+            s_subscriptionId,
+            s_requestConfirmations,
+            s_callbackGasLimit,
+            s_numWords
+        );
         requestIdToTokenId[requestId] = tokenId;
     }
 
@@ -262,16 +261,16 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
                     '"description": "Story Protocol NFT",',
                     '"attributes": [',
                     '{"trait_type": "Eyes", "value": "',
-                    attributes.eyes,
+                    bytes32ToString(attributes.eyes),
                     '"},',
                     '{"trait_type": "Hair", "value": "',
-                    attributes.hair,
+                    bytes32ToString(attributes.hair),
                     '"},',
                     '{"trait_type": "Nose", "value": "',
-                    attributes.nose,
+                    bytes32ToString(attributes.nose),
                     '"},',
                     '{"trait_type": "Mouth", "value": "',
-                    attributes.mouth,
+                    bytes32ToString(attributes.mouth),
                     '"}',
                     "]}"
                 )
@@ -282,5 +281,19 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
             string(
                 abi.encodePacked("data:application/json;base64,", revealedJSON)
             );
+    }
+
+    function bytes32ToString(
+        bytes32 _bytes32
+    ) private pure returns (string memory) {
+        uint256 i = 0;
+        while (i < 32 && _bytes32[i] != 0) {
+            i++;
+        }
+        bytes memory bytesArray = new bytes(i);
+        for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
+            bytesArray[i] = _bytes32[i];
+        }
+        return string(bytesArray);
     }
 }
