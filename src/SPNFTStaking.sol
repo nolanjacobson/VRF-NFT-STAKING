@@ -19,10 +19,9 @@ contract SPNFTStaking {
     mapping(uint256 => Stake) public stakes;
 
     constructor(
-        address _nftAddress,
-        address _rewardTokenAddress,
         address _spNFT,
-        address postRevealNFT
+        address _postRevealNFT,
+        address _rewardTokenAddress
     ) {
         spNFT = IERC721(_spNFT);
         postRevealNFT = IERC721(_postRevealNFT);
@@ -38,7 +37,7 @@ contract SPNFTStaking {
 
         // logic to check that the token isn't burned or owned by 0 address which means the spNFT is an in collection reveal
         if (spNFT.ownerOf(tokenId) != address(0)) {
-            spNFt.transferFrom(msg.sender, address(this), tokenId);
+            spNFT.transferFrom(msg.sender, address(this), tokenId);
         } else {
             postRevealNFT.transferFrom(msg.sender, address(this), tokenId);
         }
