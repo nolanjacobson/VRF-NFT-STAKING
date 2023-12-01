@@ -7,7 +7,7 @@ import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "lib/chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
 
 import "./Base64.sol";
-import "./PostReveal.sol";
+import "./PostRevealNFT.sol";
 
 // contract size is 23,265 bytes at the moment
 
@@ -63,7 +63,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
 
     uint64 s_subscriptionId;
     bytes32 s_keyHash;
-    uint32 s_callbackGasLimit = 1500000;
+    uint32 s_callbackGasLimit = 800000;
     uint16 s_requestConfirmations = 3;
     uint32 s_numWords = 4; // Number of random values needed
 
@@ -193,8 +193,10 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
             ownerOf(tokenId) != address(0),
             "ERC721Metadata: URI query for nonexistent token"
         );
+        require(ownerOf(tokenId) == msg.sender, "Invalid owner");
+        address owner = ownerOf(tokenId);
         _burn(tokenId);
-        revealedNFTContract.mint(msg.sender, tokenId);
+        revealedNFTContract.mint(owner, tokenId);
     }
 
     function reveal(uint256 tokenId) public onlyOwner {
@@ -210,6 +212,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
             ownerOf(tokenId) != address(0),
             "ERC721Metadata: URI query for nonexistent token"
         );
+        require(ownerOf(tokenId) == msg.sender, "Invalid owner");
         revealed[tokenId] = true;
         requestRandomnessForToken(tokenId);
     }

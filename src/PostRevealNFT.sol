@@ -70,7 +70,7 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
 
     uint64 s_subscriptionId;
     bytes32 s_keyHash;
-    uint32 s_callbackGasLimit = 100000;
+    uint32 s_callbackGasLimit = 800000;
     uint16 s_requestConfirmations = 3;
     uint32 s_numWords = 4; // Number of random values needed
 
@@ -131,7 +131,8 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         );
     }
 
-    function mint(address to, uint256 tokenId) external onlyOwner {
+    function mint(address to, uint256 tokenId) external {
+        require(msg.sender == spNft, "Only SPNFT can mint on this contract");
         _safeMint(to, tokenId);
         requestRandomnessForToken(tokenId);
     }
