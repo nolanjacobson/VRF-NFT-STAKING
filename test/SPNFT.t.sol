@@ -1,24 +1,30 @@
-// // SPDX-License-Identifier: UNLICENSED
-// pragma solidity ^0.8.13;
+// // SPDX-License-Identifier: MIT
+// pragma solidity ^0.8.0;
 
-// import {Test, console2} from "forge-std/Test.sol";
-// import {Counter} from "../src/Counter.sol";
+// import "forge-std/Test.sol";
+// import "../src/SPNFT.sol";
+// import { VRFCoordinatorV2Interface } from "lib/chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
+// import { MockVRFConsumerBaseV2 } from "./mocks/MockVRFConsumerBaseV2.sol";
 
-// contract CounterTest is Test {
-//     Counter public counter;
+// contract SPNFTTest is Test {
+//     SPNFT spnft;
+//     MockVRFConsumerBaseV2 mockVRFConsumer;
+//     VRFCoordinatorV2Interface vrfCoordinator;
 
 //     function setUp() public {
-//         counter = new Counter();
-//         counter.setNumber(0);
+//         // Initialize mocks and the SPNFT contract
+//         mockVRFConsumer = new MockVRFConsumerBaseV2();
+//         vrfCoordinator = VRFCoordinatorV2Interface(address(mockVRFConsumer));
+//         spnft = new SPNFT(address(vrfCoordinator), /* other args */);
 //     }
 
-//     function test_Increment() public {
-//         counter.increment();
-//         assertEq(counter.number(), 1);
+//     function testMint() public {
+//         // Test minting functionality
 //     }
 
-//     function testFuzz_SetNumber(uint256 x) public {
-//         counter.setNumber(x);
-//         assertEq(counter.number(), x);
+//     function testReveal() public {
+//         // Test the reveal functionality, including interaction with Chainlink VRF
 //     }
+
+//     // Additional tests for token URI, staking, etc.
 // }
