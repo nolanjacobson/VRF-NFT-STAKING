@@ -3,10 +3,10 @@ pragma solidity ^0.8.13;
 
 import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import "lib/chainlink-brownie-contracts/contracts/src/v0.8/dev/VRFConsumerBase.sol";
+import "lib/chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
 import "./Base64.sol";
 
-contract PostRevealNFT is ERC721, Ownable, VRFConsumerBase {
+contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
     using Strings for uint256;
     struct Group {
         bytes32[5] values;
@@ -55,7 +55,6 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBase {
             ]
         );
 
-
     struct AttributeValues {
         bytes32 eyes;
         bytes32 hair;
@@ -66,8 +65,12 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBase {
     // Mapping from token ID to its attributes
     mapping(uint256 => AttributeValues) public _tokenAttributes;
 
-    bytes32 internal keyHash;
-    uint256 internal fee;
+    uint64 s_subscriptionId;
+    bytes32 s_keyHash;
+    uint32 s_callbackGasLimit = 100000;
+    uint16 s_requestConfirmations = 3;
+    uint32 s_numWords = 4; // Number of random values needed
+
     mapping(bytes32 => uint256) public requestIdToTokenId;
 
     constructor(

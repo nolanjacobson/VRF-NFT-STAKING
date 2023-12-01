@@ -3,13 +3,13 @@ pragma solidity ^0.8.13;
 
 import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import "lib/chainlink-brownie-contracts/contracts/src/v0.8/dev/VRFConsumerBase.sol";
+import "lib/chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
 import "./Base64.sol";
 import "./PostReveal.sol";
 
 // contract size is 23,265 bytes at the moment
 
-contract SPNFT is ERC721, Ownable, VRFConsumerBase {
+contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
     struct Group {
         bytes32[5] values;
     }
@@ -57,8 +57,12 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
 
     using Strings for uint256;
 
-    bytes32 internal keyHash;
-    uint256 internal fee;
+    uint64 s_subscriptionId;
+    bytes32 s_keyHash;
+    uint32 s_callbackGasLimit = 100000;
+    uint16 s_requestConfirmations = 3;
+    uint32 s_numWords = 4; // Number of random values needed
+
     mapping(bytes32 => uint256) public requestIdToTokenId;
 
     struct AttributeValues {
@@ -82,16 +86,13 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
     mapping(uint256 => bool) public revealed;
 
     constructor(
-        address vrfCoordinator, // VRF Coordinator address
-        address linkToken, // LINK token address
-        bytes32 _keyHash, // Key hash
-        uint256 _fee, // Fee (in LINK)
+        address vrfCoordinator, // VRF Coordinator V2 address
         string memory name,
         string memory symbol,
         uint256 _mintPrice,
         bool _isInCollectionReveal
     )
-        VRFConsumerBase(vrfCoordinator, linkToken)
+        VRFConsumerBaseV2(vrfCoordinator)
         ERC721(name, symbol)
         Ownable(msg.sender)
     {
@@ -120,31 +121,30 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
         revert("Invalid group ID");
     }
 
-    function requestRandomnessForToken(
-        uint256 tokenId
-    ) public returns (bytes32 requestId) {
-        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK");
-        requestId = requestRandomness(keyHash, fee);
+    function requestRandomnessForToken(uint256 tokenId) public {
+        // Ensure you have enough LINK and are subscribed to the VRF service
+        // requestRandomWords(keyHash, subscriptionId, requestConfirmations, callbackGasLimit, numWords)
+        uint256 requestId = VRFCoordinatorV2Interface(vrfCoordinator)
+            .requestRandomWords(
+                s_keyHash,
+                s_subscriptionId,
+                s_requestConfirmations,
+                s_callbackGasLimit,
+                s_numWords
+            );
         requestIdToTokenId[requestId] = tokenId;
     }
 
-    function fulfillRandomness(
-        bytes32 requestId,
-        uint256 randomness
+    function fulfillRandomWords(
+        uint256 requestId,
+        uint256[] memory randomWords
     ) internal override {
         uint256 tokenId = requestIdToTokenId[requestId];
-        // We need 4 random numbers, 1 for each trait type
-        uint256[] memory randomNumbers = new uint256[](4);
-
-        for (uint256 i = 0; i < 4; i++) {
-            // Simple example of derivation, you can use more complex methods
-            randomNumbers[i] = uint256(keccak256(abi.encode(randomness, i)));
-        }
         // Use 'randomness' to assign attributes or other features to the token
-        uint256 eyesIndex = randomNumbers[0] % 5;
-        uint256 hairIndex = randomNumbers[1] % 5;
-        uint256 noseIndex = randomNumbers[2] % 5;
-        uint256 mouthIndex = randomNumbers[3] % 5;
+        uint256 eyesIndex = randomWords[0] % 5;
+        uint256 hairIndex = randomWords[1] % 5;
+        uint256 noseIndex = randomWords[2] % 5;
+        uint256 mouthIndex = randomWords[3] % 5;
 
         bytes32 eyesValue = getGroupValues(1, eyesIndex);
         bytes32 hairValue = getGroupValues(2, hairIndex);
