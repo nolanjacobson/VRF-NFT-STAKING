@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {VRFCoordinatorV2Interface} from "lib/chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "lib/chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
+
 import "./Base64.sol";
 import "./PostReveal.sol";
 
 // contract size is 23,265 bytes at the moment
 
 contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
+    using Strings for uint256;
+
     struct Group {
         bytes32[5] values;
     }
@@ -55,15 +59,14 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
             ]
         );
 
-    using Strings for uint256;
-
+    VRFCoordinatorV2Interface internal vrfCoordinator;
     uint64 s_subscriptionId;
     bytes32 s_keyHash;
     uint32 s_callbackGasLimit = 100000;
     uint16 s_requestConfirmations = 3;
     uint32 s_numWords = 4; // Number of random values needed
 
-    mapping(bytes32 => uint256) public requestIdToTokenId;
+    mapping(uint256 => uint256) public requestIdToTokenId;
 
     struct AttributeValues {
         bytes32 eyes;
@@ -80,25 +83,25 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
     // Total Supply before reveal
     uint256 public constant MAX_TOTAL_SUPPLY = 5;
     uint256 public currentSupply;
-    uint256 public mintPrice;
+    uint256 public mintPrice = 0.01 ether;
 
     bool public isInCollectionReveal;
     mapping(uint256 => bool) public revealed;
 
     constructor(
-        address vrfCoordinator, // VRF Coordinator V2 address
+        address _vrfCoordinator, // VRF Coordinator V2 address
+        uint64 subscriptionId,
+        bytes32 keyHash,
         string memory name,
         string memory symbol,
-        uint256 _mintPrice,
         bool _isInCollectionReveal
     )
-        VRFConsumerBaseV2(vrfCoordinator)
+        VRFConsumerBaseV2(_vrfCoordinator)
         ERC721(name, symbol)
         Ownable(msg.sender)
     {
-        keyHash = _keyHash;
-        fee = _fee;
-        mintPrice = _mintPrice;
+        s_subscriptionId = subscriptionId;
+        s_keyHash = keyHash;
         isInCollectionReveal = _isInCollectionReveal;
     }
 
