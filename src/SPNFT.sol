@@ -207,6 +207,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
             "ERC721Metadata: URI query for nonexistent token"
         );
         revealed[tokenId] = true;
+        requestRandomnessForToken(tokenId);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
