@@ -3,12 +3,26 @@ pragma solidity ^0.8.13;
 
 import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import "lib/chainlink-brownie-contracts/contracts/src/v0.8/dev/VRFConsumerBase.sol";
 import "./Base64.sol";
 import "./PostReveal.sol";
 
-contract SPNFT is ERC721, Ownable {
+contract SPNFT is ERC721, Ownable, VRFConsumerBase {
+    struct Group {
+        uint256[5] values;
+    }
+
+    Group public eyes = Group(['brown', 'blue', 'gray', 'green', 'hazel']);
+    Group public hair = Group(['blonde', 'brown', 'black', 'red', 'orange']);
+    Group public nose = Group(['big', 'small', 'round', 'skinny', 'pointy']);
+    Group public mouth = Group(['yellow', 'orange', 'pink', 'bronze', 'red']);
+
     using Counters for Counters.Counter;
     using Strings for uint256;
+
+    bytes32 internal keyHash;
+    uint256 internal fee;
+    mapping(bytes32 => uint256) public requestIdToTokenId;
 
     struct AttributeValues {
         string eyes;
@@ -32,13 +46,36 @@ contract SPNFT is ERC721, Ownable {
     string private _notRevealedURI;
 
     constructor(
+        address vrfCoordinator, // VRF Coordinator address
+        address linkToken, // LINK token address
+        bytes32 _keyHash, // Key hash
+        uint256 _fee, // Fee (in LINK)
         string memory name,
         string memory symbol,
         uint256 _mintPrice,
         bool _isInCollectionReveal
-    ) ERC721(name, symbol) {
+    ) VRFConsumerBase(vrfCoordinator, linkToken) ERC721(name, symbol) {
+        keyHash = _keyHash;
+        fee = _fee;
         mintPrice = _mintPrice;
         isInCollectionReveal = _isInCollectionReveal;
+    }
+
+    function requestRandomnessForToken(
+        uint256 tokenId
+    ) public returns (bytes32 requestId) {
+        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK");
+        requestId = requestRandomness(keyHash, fee);
+        requestIdToTokenId[requestId] = tokenId;
+    }
+
+    function fulfillRandomness(
+        bytes32 requestId,
+        uint256 randomness
+    ) internal override {
+        uint256 tokenId = requestIdToTokenId[requestId];
+        // Use 'randomness' to assign attributes or other features to the token
+        // e.g., _tokenAttributes[tokenId] = ...;
     }
 
     /// @notice Mint a new SP NFT to the msg.sender and increases supply.
@@ -50,10 +87,6 @@ contract SPNFT is ERC721, Ownable {
         currentSupply = newTokenId;
         _mint(msg.sender, newTokenId);
         return newTokenId;
-    }
-
-    function setBaseURI(string memory baseURI_) external onlyOwner {
-        _baseURIextended = baseURI_;
     }
 
     function setNotRevealedURI(
