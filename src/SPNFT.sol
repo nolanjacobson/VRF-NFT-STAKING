@@ -7,17 +7,54 @@ import "lib/chainlink-brownie-contracts/contracts/src/v0.8/dev/VRFConsumerBase.s
 import "./Base64.sol";
 import "./PostReveal.sol";
 
+// contract size is 23,265 bytes at the moment
+
 contract SPNFT is ERC721, Ownable, VRFConsumerBase {
     struct Group {
-        uint256[5] values;
+        bytes32[5] values;
     }
 
-    Group public eyes = Group(["brown", "blue", "gray", "green", "hazel"]);
-    Group public hair = Group(["blonde", "brown", "black", "red", "orange"]);
-    Group public nose = Group(["big", "small", "round", "skinny", "pointy"]);
-    Group public mouth = Group(["yellow", "orange", "pink", "bronze", "red"]);
+    Group private eyes =
+        Group(
+            [
+                bytes32("brown"),
+                bytes32("blue"),
+                bytes32("gray"),
+                bytes32("green"),
+                bytes32("hazel")
+            ]
+        );
+    Group private hair =
+        Group(
+            [
+                bytes32("blonde"),
+                bytes32("brown"),
+                bytes32("black"),
+                bytes32("red"),
+                bytes32("orange")
+            ]
+        );
+    Group private nose =
+        Group(
+            [
+                bytes32("big"),
+                bytes32("small"),
+                bytes32("round"),
+                bytes32("skinny"),
+                bytes32("pointy")
+            ]
+        );
+    Group private mouth =
+        Group(
+            [
+                bytes32("yellow"),
+                bytes32("orange"),
+                bytes32("pink"),
+                bytes32("bronze"),
+                bytes32("red")
+            ]
+        );
 
-    using Counters for Counters.Counter;
     using Strings for uint256;
 
     bytes32 internal keyHash;
@@ -25,10 +62,10 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
     mapping(bytes32 => uint256) public requestIdToTokenId;
 
     struct AttributeValues {
-        string eyes;
-        string hair;
-        string nose;
-        string mouth;
+        bytes32 eyes;
+        bytes32 hair;
+        bytes32 nose;
+        bytes32 mouth;
     }
 
     // Mapping from token ID to its attributes
@@ -39,6 +76,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
     // Total Supply before reveal
     uint256 public constant MAX_TOTAL_SUPPLY = 5;
     uint256 public currentSupply;
+    uint256 public mintPrice;
 
     bool public isInCollectionReveal;
     mapping(uint256 => bool) public revealed;
@@ -52,11 +90,34 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
         string memory symbol,
         uint256 _mintPrice,
         bool _isInCollectionReveal
-    ) VRFConsumerBase(vrfCoordinator, linkToken) ERC721(name, symbol) {
+    )
+        VRFConsumerBase(vrfCoordinator, linkToken)
+        ERC721(name, symbol)
+        Ownable(msg.sender)
+    {
         keyHash = _keyHash;
         fee = _fee;
         mintPrice = _mintPrice;
         isInCollectionReveal = _isInCollectionReveal;
+    }
+
+    function getGroupValues(
+        uint groupId,
+        uint index
+    ) public view returns (bytes32) {
+        require(index < 5, "Index out of bounds");
+
+        if (groupId == 1) {
+            return eyes.values[index];
+        } else if (groupId == 2) {
+            return hair.values[index];
+        } else if (groupId == 3) {
+            return nose.values[index];
+        } else if (groupId == 4) {
+            return mouth.values[index];
+        }
+
+        revert("Invalid group ID");
     }
 
     function requestRandomnessForToken(
@@ -72,8 +133,30 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
         uint256 randomness
     ) internal override {
         uint256 tokenId = requestIdToTokenId[requestId];
+        // We need 4 random numbers, 1 for each trait type
+        uint256[] memory randomNumbers = new uint256[](4);
+
+        for (uint256 i = 0; i < 4; i++) {
+            // Simple example of derivation, you can use more complex methods
+            randomNumbers[i] = uint256(keccak256(abi.encode(randomness, i)));
+        }
         // Use 'randomness' to assign attributes or other features to the token
-        // e.g., _tokenAttributes[tokenId] = ...;
+        uint256 eyesIndex = randomNumbers[0] % 5;
+        uint256 hairIndex = randomNumbers[1] % 5;
+        uint256 noseIndex = randomNumbers[2] % 5;
+        uint256 mouthIndex = randomNumbers[3] % 5;
+
+        bytes32 eyesValue = getGroupValues(1, eyesIndex);
+        bytes32 hairValue = getGroupValues(2, hairIndex);
+        bytes32 noseValue = getGroupValues(3, noseIndex);
+        bytes32 mouthValue = getGroupValues(4, mouthIndex);
+
+        _tokenAttributes[tokenId] = AttributeValues(
+            eyesValue,
+            hairValue,
+            noseValue,
+            mouthValue
+        );
     }
 
     /// @notice Mint a new SP NFT to the msg.sender and increases supply.
@@ -84,19 +167,17 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
         uint256 newTokenId = currentSupply + 1;
         currentSupply = newTokenId;
         _mint(msg.sender, newTokenId);
-        return newTokenId;
     }
 
-    function setNotRevealedURI(
-        string memory notRevealedURI
+    // Function for admin (operator) to change the reveal approach (THIS IS ALSO DONE IN THE CONSTRUCTOR)
+    function setInCollectionOrSeperateCollectionReveal(
+        bool _isInCollectionReveal
     ) external onlyOwner {
-        _notRevealedURI = notRevealedURI;
+        isInCollectionReveal = _isInCollectionReveal;
     }
 
-    function setRevealedNFTAddress(
-        address _revealedNFTAddress
-    ) external onlyOwner {
-        revealedNFTContract = RevealedNFT(_revealedNFTAddress);
+    function setPostRevealNFT(address _postRevealNFT) external onlyOwner {
+        revealedNFTContract = PostRevealNFT(_postRevealNFT);
     }
 
     function revealAndTransfer(uint256 tokenId) external onlyOwner {
@@ -105,11 +186,11 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
             "This function does not work as the collection is InRevealCollection"
         );
         require(
-            _exists(tokenId),
+            ownerOf(tokenId) != address(0),
             "ERC721Metadata: URI query for nonexistent token"
         );
         _burn(tokenId);
-        revealedNFTContract.mint(msg.sender);
+        revealedNFTContract.mint(msg.sender, tokenId);
     }
 
     function reveal(uint256 tokenId) public onlyOwner {
@@ -122,7 +203,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
             "Max supply hasn't been sold yet."
         );
         require(
-            _exists(tokenId),
+            ownerOf(tokenId) != address(0),
             "ERC721Metadata: URI query for nonexistent token"
         );
         revealed[tokenId] = true;
@@ -132,27 +213,20 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
         return "";
     }
 
-    function setTokenAttributes(
-        uint256 tokenId,
-        string memory eyes,
-        string memory hair,
-        string memory nose,
-        string memory mouth
-    ) public {
-        // Add access control as needed
-        _tokenAttributes[tokenId] = AttributeValues(eyes, hair, nose, mouth);
-    }
-
     function tokenURI(
         uint256 tokenId
     ) public view override returns (string memory) {
         require(
-            _exists(tokenId),
+            ownerOf(tokenId) != address(0),
             "ERC721Metadata: URI query for nonexistent token"
         );
 
         // initially had this as !revealed[tokenId], but there could be a delay in VRF fulfilling the response which updates tokenAttributes
-        if (!_tokenAttributes[tokenId]) {
+        if (
+            keccak256(abi.encodePacked(_tokenAttributes[tokenId].nose)) ==
+            keccak256(abi.encodePacked(""))
+        ) {
+            // The struct is "empty" or not initialized
             string memory notRevealedJSON = Base64.encode(
                 bytes(
                     abi.encodePacked(
@@ -163,7 +237,13 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
                     )
                 )
             );
-            return string(abi.encodePacked("data:application/json;base64,", notRevealedJSON));
+            return
+                string(
+                    abi.encodePacked(
+                        "data:application/json;base64,",
+                        notRevealedJSON
+                    )
+                );
         }
 
         AttributeValues memory attributes = _tokenAttributes[tokenId];
@@ -192,6 +272,9 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBase {
             )
         );
 
-        return string(abi.encodePacked("data:application/json;base64,", revealedJSON));
+        return
+            string(
+                abi.encodePacked("data:application/json;base64,", revealedJSON)
+            );
     }
 }

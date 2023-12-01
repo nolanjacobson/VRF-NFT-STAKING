@@ -5,8 +5,10 @@ import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 contract PostRevealNFT is ERC721, Ownable {
-
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
+    constructor(
+        string memory name,
+        string memory symbol
+    ) ERC721(name, symbol) Ownable(msg.sender) {}
 
     function mint(address to, uint256 tokenId) external onlyOwner {
         _safeMint(to, tokenId);
