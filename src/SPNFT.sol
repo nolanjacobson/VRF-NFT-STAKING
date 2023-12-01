@@ -227,10 +227,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         );
 
         // initially had this as !revealed[tokenId], but there could be a delay in VRF fulfilling the response which updates tokenAttributes
-        if (
-            keccak256(abi.encodePacked(_tokenAttributes[tokenId].nose)) ==
-            keccak256(abi.encodePacked(""))
-        ) {
+        if (_tokenAttributes[tokenId].nose == bytes32(0)) {
             // The struct is "empty" or not initialized
             string memory notRevealedJSON = Base64.encode(
                 bytes(

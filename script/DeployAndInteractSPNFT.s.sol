@@ -12,8 +12,8 @@ contract DeployAndInteractSPNFT is Script {
         vm.startBroadcast(); // Start broadcasting transactions
         // vm.gas(5000000); // Replace with your desired gas limit
 
-        // SPNFT spnft = new SPNFT(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625, 7362, 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, "SPNFTest", "SP", true);
-        address deployedSPNFTAddress = 0xbE7fc37A5E8A543403aC177Ad202d3A47C87B6F0; // Replace with the actual address
+        // SPNFT spnft = new SPNFT(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625, 7362, 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, "SPNFTest", "SP", false);
+        address deployedSPNFTAddress = 0x3A1415C0034BD9Ebc54249D5D838EbE74E48768e; // Replace with the actual address
         SPNFT spnft = SPNFT(deployedSPNFTAddress);
 
         // Interact with the deployed contract
@@ -24,20 +24,18 @@ contract DeployAndInteractSPNFT is Script {
         // spnft.mint{value: 0.01 ether}();
         // spnft.mint{value: 0.01 ether}();
 
-        string memory tokenURI = spnft.tokenURI(2);
-        console.log(tokenURI);
+        // string memory tokenURI = spnft.tokenURI(1);
+        // console.log(tokenURI);
 
-        // try spnft.reveal{gas: 5000000}(1) {
-        //     // Handle successful execution
-        // } catch Error(string memory reason) {
-        //     // Catch and log custom revert messages
-        //     console.log("Transaction failed:", reason);
-        // } catch {
-        //     // Catch and log generic reverts
-        //     console.log("Transaction failed due to revert");
-        // }
-        // spnft.reveal(1);
-        // More interactions...
+        try spnft.revealAndTransfer{gas: 5000000}(1) {
+            // Handle successful execution
+        } catch Error(string memory reason) {
+            // Catch and log custom revert messages
+            console.log("Transaction failed:", reason);
+        } catch {
+            // Catch and log generic reverts
+            console.log("Transaction failed due to revert");
+        }
 
         vm.stopBroadcast(); // Stop broadcasting transactions
     }
