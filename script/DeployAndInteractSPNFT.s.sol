@@ -10,22 +10,32 @@ import "../src/SPNFT.sol"; // Adjust the path to your SPNFT contract
 contract DeployAndInteractSPNFT is Script {
     function run() external {
         vm.startBroadcast(); // Start broadcasting transactions
-        // address _vrfCoordinator, // VRF Coordinator V2 address
-        // uint64 subscriptionId,
-        // bytes32 keyHash,
-        // string memory name,
-        // string memory symbol,
-        // uint256 _mintPrice,
-        // bool _isInCollectionReveal
-        // Deploy the SPNFT contract
-        SPNFT spnft = new SPNFT(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625, 7362, 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, "SPNFTest", "SP", true);
+        // vm.gas(5000000); // Replace with your desired gas limit
+
+        // SPNFT spnft = new SPNFT(0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625, 7362, 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, "SPNFTest", "SP", true);
+        address deployedSPNFTAddress = 0xbE7fc37A5E8A543403aC177Ad202d3A47C87B6F0; // Replace with the actual address
+        SPNFT spnft = SPNFT(deployedSPNFTAddress);
 
         // Interact with the deployed contract
         // For example, mint an NFT
-        // spnft.mint{value: 1 ether}();
+        // spnft.mint{value: 0.01 ether}();
+        // spnft.mint{value: 0.01 ether}();
+        // spnft.mint{value: 0.01 ether}();
+        // spnft.mint{value: 0.01 ether}();
+        // spnft.mint{value: 0.01 ether}();
 
+        try spnft.reveal{gas: 5000000}(1) {
+            // Handle successful execution
+        } catch Error(string memory reason) {
+            // Catch and log custom revert messages
+            console.log("Transaction failed:", reason);
+        } catch {
+            // Catch and log generic reverts
+            console.log("Transaction failed due to revert");
+        }
+        // spnft.reveal(1);
         // More interactions...
-        
+
         vm.stopBroadcast(); // Stop broadcasting transactions
     }
 }

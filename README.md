@@ -64,3 +64,9 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+### Verify Script
+
+```
+forge script ./script/DeployAndInteractSPNFT.s.sol --rpc-url https://ethereum-sepolia.blockpi.network/v1/rpc/public --private-key $PRIVATE_KEY --etherscan-api-key $ETHERSCAN_API_KEY --verify --broadcast -vvvv
+```

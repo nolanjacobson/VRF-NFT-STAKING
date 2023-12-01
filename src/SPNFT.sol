@@ -59,10 +59,11 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
             ]
         );
 
-    VRFCoordinatorV2Interface internal vrfCoordinator;
+    VRFCoordinatorV2Interface COORDINATOR;
+
     uint64 s_subscriptionId;
     bytes32 s_keyHash;
-    uint32 s_callbackGasLimit = 100000;
+    uint32 s_callbackGasLimit = 1500000;
     uint16 s_requestConfirmations = 3;
     uint32 s_numWords = 4; // Number of random values needed
 
@@ -83,7 +84,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
     // Total Supply before reveal
     uint256 public constant MAX_TOTAL_SUPPLY = 5;
     uint256 public currentSupply;
-    uint256 public mintPrice = 0.01 ether;
+    uint256 public mintPrice = 0.001 ether;
 
     bool public isInCollectionReveal;
     mapping(uint256 => bool) public revealed;
@@ -100,6 +101,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         ERC721(name, symbol)
         Ownable(msg.sender)
     {
+        COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
         s_subscriptionId = subscriptionId;
         s_keyHash = keyHash;
         isInCollectionReveal = _isInCollectionReveal;
@@ -127,7 +129,7 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
     function requestRandomnessForToken(uint256 tokenId) public {
         // Ensure you have enough LINK and are subscribed to the VRF service
         // requestRandomWords(keyHash, subscriptionId, requestConfirmations, callbackGasLimit, numWords)
-        uint256 requestId = VRFCoordinatorV2Interface(vrfCoordinator)
+        uint256 requestId = COORDINATOR
             .requestRandomWords(
                 s_keyHash,
                 s_subscriptionId,

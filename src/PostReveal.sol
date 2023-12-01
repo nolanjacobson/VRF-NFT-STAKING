@@ -66,7 +66,7 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
 
     // Mapping from token ID to its attributes
     mapping(uint256 => AttributeValues) public _tokenAttributes;
-    VRFCoordinatorV2Interface internal vrfCoordinator;
+    VRFCoordinatorV2Interface COORDINATOR;
 
     uint64 s_subscriptionId;
     bytes32 s_keyHash;
@@ -88,6 +88,7 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         ERC721(name, symbol)
         Ownable(msg.sender)
     {
+        COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
         s_subscriptionId = subscriptionId;
         s_keyHash = keyHash;
         spNft = _spNft;
@@ -96,7 +97,7 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
     function requestRandomnessForToken(uint256 tokenId) public {
         // Ensure you have enough LINK and are subscribed to the VRF service
         // requestRandomWords(keyHash, subscriptionId, requestConfirmations, callbackGasLimit, numWords)
-        uint256 requestId = VRFCoordinatorV2Interface(vrfCoordinator)
+        uint256 requestId = COORDINATOR
             .requestRandomWords(
                 s_keyHash,
                 s_subscriptionId,
