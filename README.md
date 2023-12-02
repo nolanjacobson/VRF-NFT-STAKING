@@ -37,7 +37,27 @@ to release the staked NFT.
 
 ## Setup and Deployment
 
-Provide instructions on how to set up and deploy these contracts. Include any prerequisites.
+To set up and deploy the SCE-Take-Home project, follow these steps:
+
+### Prerequisites
+
+- Install [Git](https://git-scm.com/) for cloning the repository.
+- Install [Foundry](https://getfoundry.sh/), which includes Forge, a command-line tool for Ethereum smart contract development. Follow the [official Foundry installation guide](https://book.getfoundry.sh/getting-started/installation.html) for detailed steps.
+- Ensure you have a [Solidity](https://soliditylang.org/) environment set up.
+
+### Setup
+
+1) Clone the repository to your machine: `git clone https://github.com/nolanjacobson/SCE-Take-Home`
+2) Change into the cloned repo: `cd SCE-Take-Home`
+3) You need to install 3 libraries that are used by the smart contracts via Forge Modules: `forge install smartcontractkit/chainlink`, `forge install OpenZeppelin/openzeppelin-contracts`, `forge install foundry-rs/forge-std`
+4) Build the smart contracts: `forge build --via-ir`
+
+After following the 4 steps above, you can either interact via scripts or run the unit tests.
+
+### Scripts
+
+
+### Unit Tests
 
 ```
 ```
