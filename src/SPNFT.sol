@@ -171,6 +171,17 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         uint256 newTokenId = currentSupply + 1;
         currentSupply = newTokenId;
         _mint(msg.sender, newTokenId);
+
+        // Calculate the excess amount of Ether sent
+        uint256 excessAmount = msg.value - mintPrice;
+
+        // Return the excess Ether to the sender
+        if (excessAmount > 0) {
+            (bool success, ) = payable(msg.sender).call{value: excessAmount}(
+                ""
+            );
+            require(success, "Refund failed");
+        }
     }
 
     // Function for admin (operator) to change the reveal approach (THIS IS ALSO DONE IN THE CONSTRUCTOR)
