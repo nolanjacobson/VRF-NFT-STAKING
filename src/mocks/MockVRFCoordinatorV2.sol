@@ -9,7 +9,7 @@ import {ConfirmedOwner} from "lib/chainlink/contracts/src/v0.8/shared/access/Con
 // solhint-disable custom-errors
 // solhint-disable avoid-low-level-calls
 
-contract VRFCoordinatorV2Mock is VRFCoordinatorV2Interface, ConfirmedOwner {
+contract MockVRFCoordinatorV2 is VRFCoordinatorV2Interface, ConfirmedOwner {
   uint96 public immutable BASE_FEE;
   uint96 public immutable GAS_PRICE_LINK;
   uint16 public immutable MAX_CONSUMERS = 100;

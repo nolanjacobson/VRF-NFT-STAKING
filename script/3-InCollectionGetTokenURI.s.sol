@@ -9,7 +9,7 @@ contract InCollectionGetTokenURIScript is Script {
     function run() external {
         vm.startBroadcast(); // Start broadcasting transactions
         address spnftAddress = 0xF1887DAEeE664014bFAE9BA6CE9d9fc5995a034E;
-        SPNFT spnft = SPNFT(spnftAddress);
+        SPNFT spnft = SPNFT(payable(spnftAddress));
 
         // Mint out the collection (MAX_TOTAL_SUPPLY is currently set to 5)
         uint256 tokenId = 1;

@@ -9,7 +9,7 @@ contract InteractSeperateCollectionScript is Script {
     function run() external {
         vm.startBroadcast(); // Start broadcasting transactions
         address spnftAddress = 0xB5066199A73F0528b2Ec3108e7358C5DAce3Ccf9;
-        SPNFT spnft = SPNFT(spnftAddress);
+        SPNFT spnft = SPNFT(payable(spnftAddress));
         address postRevealNFTAddress = 0x376E14Cb1ceD4f3fCCfe2f82cBcAEf3E30Ea3335;
         PostRevealNFT postRevealNFT = PostRevealNFT(postRevealNFTAddress);
 

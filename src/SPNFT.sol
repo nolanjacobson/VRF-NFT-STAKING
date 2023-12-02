@@ -296,4 +296,22 @@ contract SPNFT is ERC721, Ownable, VRFConsumerBaseV2 {
         }
         return string(bytesArray);
     }
+
+    function withdraw() external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No Ether left to withdraw");
+
+        (bool success, ) = payable(owner()).call{value: balance}("");
+        require(success, "Transfer failed.");
+    }
+
+    /**
+     * @dev Function to receive Ether. msg.data must be empty.
+     */
+    receive() external payable {}
+
+    /**
+     * @dev Fallback function is called when msg.data is not empty.
+     */
+    fallback() external payable {}
 }

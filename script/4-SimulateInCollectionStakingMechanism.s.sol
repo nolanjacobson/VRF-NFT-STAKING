@@ -12,7 +12,7 @@ contract SimulateInCollectionStakingMechanismScript is Script {
 
         address spnftAddress = 0xF1887DAEeE664014bFAE9BA6CE9d9fc5995a034E;
 
-        SPNFT spnft = SPNFT(spnftAddress);
+        SPNFT spnft = SPNFT(payable(spnftAddress));
 
         RewardTokenERC20 erc20 = new RewardTokenERC20("StakingRewards", "SR");
         address erc20Address = address(erc20);

@@ -13,7 +13,7 @@ contract SimulateSeperateCollectionStakingMechanismScript is Script {
         address spnftAddress = 0xB5066199A73F0528b2Ec3108e7358C5DAce3Ccf9;
         address postRevealAddress = 0x376E14Cb1ceD4f3fCCfe2f82cBcAEf3E30Ea3335;
 
-        SPNFT spnft = SPNFT(spnftAddress);
+        SPNFT spnft = SPNFT(payable(spnftAddress));
         PostRevealNFT postRevealNFT = PostRevealNFT(postRevealAddress);
 
         RewardTokenERC20 erc20 = new RewardTokenERC20("StakingRewards", "SR");
