@@ -15,23 +15,9 @@ contract InteractInCollectionScript is Script {
         SPNFT spnft = SPNFT(spnftAddress);
 
         // Mint out the collection (MAX_TOTAL_SUPPLY is currently set to 5)
-        spnft.mint{value: 0.01 ether}();
-        spnft.mint{value: 0.01 ether}();
-        spnft.mint{value: 0.01 ether}();
-        spnft.mint{value: 0.01 ether}();
-        spnft.mint{value: 0.01 ether}();
-
-        // Reveal for tokenId 1, feel free to change this to whatever tokenId you'd like to reveal.
         uint256 tokenId = 1;
-        try spnft.reveal{gas: 5000000}(tokenId) {
-            // Handle successful execution
-        } catch Error(string memory reason) {
-            // Catch and log custom revert messages
-            console.log("Transaction failed:", reason);
-        } catch {
-            // Catch and log generic reverts
-            console.log("Transaction failed due to revert");
-        }
+        string memory tokenURI = spnft.tokenURI(tokenId);
+        console.log(tokenURI);
 
         vm.stopBroadcast(); // Stop broadcasting transactions
     }

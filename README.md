@@ -44,6 +44,8 @@ To set up and deploy the SCE-Take-Home project, follow these steps:
 - Install [Git](https://git-scm.com/) for cloning the repository.
 - Install [Foundry](https://getfoundry.sh/), which includes Forge, a command-line tool for Ethereum smart contract development. Follow the [official Foundry installation guide](https://book.getfoundry.sh/getting-started/installation.html) for detailed steps.
 - Ensure you have a [Solidity](https://soliditylang.org/) environment set up.
+- Create a [VRF subscription](https://vrf.chain.link/sepolia/) on Sepolia.
+- Get some sETH (Sepolia ETH) from a faucet like [Alchemy](https://sepoliafaucet.com/) or [Infura](https://www.infura.io/faucet/sepolia)
 
 ### Setup
 
@@ -56,6 +58,37 @@ After following the 4 steps above, you can either interact via scripts or run th
 
 ### Scripts
 
+Note: You will need to replace $YOUR_PRIVATE_KEY, and $YOUR_ETHERSCAN_API_KEY with your private key env variables.
+
+1) Depending on if you want to deploy the `InCollection` or `SeperateCollection` approach, you will run one of the following scripts:
+
+- You will need to go locate the `uint64 subscriptionId` variable and assign the value to your subscription id from your [VRF subscription](https://vrf.chain.link/sepolia/).
+
+```forge script ./script/1-DeployInCollectionScript.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --etherscan-api-key $YOUR_ETHERSCAN_API_KEY --broadcast -vvvv --via-ir```
+
+```forge script ./script/1-DeploySeperateCollectionScript.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --etherscan-api-key $YOUR_ETHERSCAN_API_KEY --broadcast -vvvv --via-ir```
+
+
+1A) You will need to take note of the newly deployed SPNFT contract address for the `InCollectionScript` and you will need to take note of the newly deployed PostRevealNFT contract addresses for the `SeperateCollectionScript`. You will then go to your [VRF subscription](https://vrf.chain.link/sepolia/) on Sepolia and register a new consumer with the newly deployed contract address.
+
+2) You will run the interact `InCollection` or interact `SeperateCollection` scripts. This will mint 5 tokens and call reveal on 1 tokenId, there is a variable
+in the script that will allow you to change the `tokenId` you would like to reveal.
+
+- You will need to set `address spnftAddress = YOUR_SPNFT_ADDRESS;` in both collections and for the SeperateCollection you will additionally need to set `        address postRevealNFTAddress = YOUR_POST_REVEAL_NFT_ADDRESS;`
+
+```forge script ./script/2-InteractInCollectionScript.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
+```forge script ./script/2-InteractSeperateCollectionScript.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
+
+3) You can get the tokenURI for the newly revealed token. 
+
+- For the `InCollection` approach, you will need to go to `3-InCollectionGetTokenURI` and update `address spnftAddress = YOUR_SPNFT_ADDRESS;`. For the `SeperateCollection` approach, you will need to go to `3-SeperateCollectionGetTokenURI` and update `address postRevealNFTAddress = YOUR_POST_REVEAL_ADDRESS;`
+
+```forge script ./script/3-InCollectionGetTokenURI.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
+```forge script ./script/3-SeperateCollectionGetTokenURI.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
+
+This will return a base64 encoded string that you can paste in your browser to render the JSON metadata to the screen.
+
+4) 
 
 ### Unit Tests
 
