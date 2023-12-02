@@ -74,7 +74,7 @@ Note: You will need to replace $YOUR_PRIVATE_KEY, and $YOUR_ETHERSCAN_API_KEY wi
 2) You will run the interact `InCollection` or interact `SeperateCollection` scripts. This will mint 5 tokens and call reveal on 1 tokenId, there is a variable
 in the script that will allow you to change the `tokenId` you would like to reveal.
 
-- You will need to set `address spnftAddress = YOUR_SPNFT_ADDRESS;` in both collections and for the SeperateCollection you will additionally need to set `        address postRevealNFTAddress = YOUR_POST_REVEAL_NFT_ADDRESS;`
+- For the `InCollection` approach, you will need to go to `2-InteractInCollectionScript` and update `address spnftAddress = YOUR_SPNFT_ADDRESS;`. For the `SeperateCollection` approach, you will need to go to `2-InteractSeperateCollectionScript` and update `address spnftAddress = YOUR_SPNFT_ADDRESS;` and `address postRevealNFTAddress = YOUR_POST_REVEAL_ADDRESS;`
 
 ```forge script ./script/2-InteractInCollectionScript.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
 ```forge script ./script/2-InteractSeperateCollectionScript.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
@@ -88,7 +88,12 @@ in the script that will allow you to change the `tokenId` you would like to reve
 
 This will return a base64 encoded string that you can paste in your browser to render the JSON metadata to the screen.
 
-4) 
+4) You can stake your NFT for 5% APY!
+
+- For the `InCollection` approach, you will need to go to `4-SimulateInCollectionStakingMechanism` and update `address spnftAddress = YOUR_SPNFT_ADDRESS;`. For the `SeperateCollection` approach, you will need to go to `4-SimulateSeperateCollectionStakingMechanism` and update `address postRevealNFTAddress = YOUR_POST_REVEAL_ADDRESS;`
+
+```forge script ./script/4-SimulateInCollectionStakingMechanism.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
+```forge script ./script/4-SimulateSeperateCollectionStakingMechanism.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --private-key $YOUR_PRIVATE_KEY --broadcast --via-ir```
 
 ### Unit Tests
 

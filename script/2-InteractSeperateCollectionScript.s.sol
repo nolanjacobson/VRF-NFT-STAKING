@@ -5,15 +5,12 @@ import "lib/forge-std/src/Script.sol";
 import "../src/SPNFT.sol"; // Adjust the path to your SPNFT contract
 import "../src/PostRevealNFT.sol";
 
-// Sepolia VRF Coordinator - 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625
-// Sepolia KeyHash - 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c
-
 contract InteractSeperateCollectionScript is Script {
     function run() external {
         vm.startBroadcast(); // Start broadcasting transactions
-        address spnftAddress = 0xA91D2D52496CAFC8A679d347E597b872d38ba5c7;
+        address spnftAddress = 0xB5066199A73F0528b2Ec3108e7358C5DAce3Ccf9;
         SPNFT spnft = SPNFT(spnftAddress);
-        address postRevealNFTAddress = 0x95043a6d7Ca8Bb1eA34Af0444e8Ff2D8ADC080fF;
+        address postRevealNFTAddress = 0x376E14Cb1ceD4f3fCCfe2f82cBcAEf3E30Ea3335;
         PostRevealNFT postRevealNFT = PostRevealNFT(postRevealNFTAddress);
 
         spnft.setPostRevealNFT(postRevealNFTAddress);

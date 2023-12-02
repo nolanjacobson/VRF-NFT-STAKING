@@ -29,20 +29,35 @@ contract SPNFTStaking {
     }
 
     function stake(uint256 tokenId) external {
-        require(
-            spNFT.ownerOf(tokenId) == msg.sender ||
-                postRevealNFT.ownerOf(tokenId) == msg.sender,
-            "Not the NFT owner"
-        );
+        // require(
+        //     spNFT.ownerOf(tokenId) == msg.sender ||
+        //         postRevealNFT.ownerOf(tokenId) == msg.sender,
+        //     "Not the NFT owner"
+        // );
 
-        // logic to check that the token isn't burned or owned by 0 address which means the spNFT is an in collection reveal
-        if (spNFT.ownerOf(tokenId) != address(0)) {
-            spNFT.transferFrom(msg.sender, address(this), tokenId);
-        } else {
-            postRevealNFT.transferFrom(msg.sender, address(this), tokenId);
+        // TODO: Revist this for security reasons
+        stakes[tokenId] = Stake(block.timestamp, msg.sender);
+
+        bool isOwner = false;
+
+        try spNFT.ownerOf(tokenId) returns (address owner) {
+            if (owner == msg.sender) {
+                isOwner = true;
+                spNFT.transferFrom(msg.sender, address(this), tokenId);
+            }
+        } catch {
+            // Catch block if spNFT.ownerOf(tokenId) reverts
         }
 
-        stakes[tokenId] = Stake(block.timestamp, msg.sender);
+        if (!isOwner) {
+            try postRevealNFT.ownerOf(tokenId) returns (address postOwner) {
+                require(postOwner == msg.sender, "Not the NFT owner");
+                postRevealNFT.transferFrom(msg.sender, address(this), tokenId);
+            } catch {
+                revert("Not the NFT owner");
+            }
+        }
+        // logic to check that the token isn't burned or owned by 0 address which means the spNFT is an in collection reveal, if owned by 0 address ownerOf reverts
     }
 
     function claimReward(uint256 tokenId) external {

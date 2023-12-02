@@ -133,7 +133,7 @@ contract PostRevealNFT is ERC721, Ownable, VRFConsumerBaseV2 {
 
     function mint(address to, uint256 tokenId) external {
         require(msg.sender == spNft, "Only SPNFT can mint on this contract");
-        _safeMint(to, tokenId);
+        _mint(to, tokenId);
         requestRandomnessForToken(tokenId);
     }
 
