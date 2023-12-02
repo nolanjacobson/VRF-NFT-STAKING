@@ -9,12 +9,12 @@ import "../src/PostRevealNFT.sol";
 // Sepolia KeyHash - 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c
 
 contract InteractSeperateCollectionScript is Script {
-    function run(args) external {
+    function run(address _spnft, address _postRevealNFT) external {
         vm.startBroadcast(); // Start broadcasting transactions
-        SPNFT spnft = SPNFT(args[0]);
+        SPNFT spnft = SPNFT(_spnft);
         address spnftAddress = address(spnft);
         console.log(spnftAddress);
-        PostRevealNFT postRevealNFT = PostRevealNFT(args[1]);
+        PostRevealNFT postRevealNFT = PostRevealNFT(_postRevealNFT);
         address postRevealNFTAddress = address(postRevealNFT);
         console.log(postRevealNFTAddress);
         vm.stopBroadcast(); // Stop broadcasting transactions
