@@ -3,8 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import "../src/SPNFT.sol";
-import {VRFCoordinatorV2Interface} from "lib/chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
-import {MockVRFCoordinatorV2} from "../src/mocks/MockVRFCoordinatorV2.sol";
+import { MockVRFCoordinatorV2 } from "../src/mocks/MockVRFCoordinatorV2.sol";
 
 contract SPNFTTest is Test {
     SPNFT spnft;
@@ -14,40 +13,20 @@ contract SPNFTTest is Test {
     uint256 MAX_TOTAL_SUPPLY = 5; // Update with your contract's max total supply
 
     function setUp() public {
-        // Initialize mocks and the SPNFT contract
-        // Deploy the MockVRFCoordinatorV2 with some arbitrary base fee and gas price link
         vrfCoordinator = new MockVRFCoordinatorV2(1, 1);
-
-        // Create a new subscription
         subId = vrfCoordinator.createSubscription();
-
-        // Deploy your VRF consumer contract, passing any necessary constructor arguments
-        spnft = new SPNFT(
-            address(vrfCoordinator),
-            subId,
-            0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc,
-            "SPNFT",
-            "SP",
-            true
-        );
-
-        // Fund the subscription with an arbitrary amount
+        spnft = new SPNFT(address(vrfCoordinator), subId, 0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc, "SPNFT", "SP", true);
         vrfCoordinator.fundSubscription(subId, 1000);
-
-        // Add your consumer contract to your subscription
         vrfCoordinator.addConsumer(subId, address(spnft));
     }
 
     function testSuccessfulMint() public {
-        console.log("Initial Supply:", spnft.currentSupply());
         spnft.mint{value: mintPrice}();
-        console.log("New Supply:", spnft.currentSupply());
         assertEq(spnft.currentSupply(), 1);
         assertEq(address(spnft).balance, mintPrice);
     }
 
     function testFailMintWithInsufficientFunds() public {
-        // Call the mint function with less than the required mint price
         spnft.mint{value: mintPrice - 0.1 ether}();
     }
 
@@ -55,21 +34,49 @@ contract SPNFTTest is Test {
         for (uint256 i = 0; i < MAX_TOTAL_SUPPLY; i++) {
             spnft.mint{value: mintPrice}();
         }
-
-        // This should fail
-        spnft.mint{value: mintPrice}();
+        spnft.mint{value: mintPrice}(); // Expected to fail
     }
 
     function testTokenIdIncrement() public {
         spnft.mint{value: mintPrice}();
-
         uint256 newTokenId = spnft.currentSupply();
-        console.log(newTokenId);
-        // assertEq(newTokenId, 1);
+        assertEq(newTokenId, 1);
     }
 
-    function testReveal() public {
-        // Test the reveal functionality, including interaction with Chainlink VRF
+    // Test Cases for reveal function
+    function testSuccessfulReveal() public {
+        for (uint256 i = 0; i < MAX_TOTAL_SUPPLY; i++) {
+            vm.deal(address(this), mintPrice);
+            spnft.mint{value: mintPrice}();
+        }
+
+        uint256 tokenId = 1; // Assuming the first token ID is 1
+        spnft.reveal(tokenId);
+        assertTrue(spnft.revealed(tokenId));
+    }
+
+    function testFailRevealWhenNotInCollectionReveal() public {
+        uint256 tokenId = 1;
+        spnft.setInCollectionOrSeperateCollectionReveal(false);
+        spnft.reveal(tokenId); // Expected to fail
+    }
+
+    function testFailRevealBeforeMaxSupplyReached() public {
+        SPNFT newNFT = new SPNFT(address(vrfCoordinator), subId, 0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc, "SPNFT", "SP", true);
+        newNFT.mint{value: mintPrice}();
+        newNFT.reveal(1); // Expected to fail
+    }
+
+    function testFailRevealNonexistentToken() public {
+        uint256 nonexistentTokenId = MAX_TOTAL_SUPPLY + 1;
+        spnft.reveal(nonexistentTokenId); // Expected to fail
+    }
+
+    function testFailRevealByNonOwner() public {
+        uint256 tokenId = 1;
+        address nonOwner = address(0x123);
+        vm.prank(nonOwner);
+        spnft.reveal(tokenId); // Expected to fail
     }
 
     // Additional tests for token URI, staking, etc.

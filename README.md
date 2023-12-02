@@ -98,5 +98,5 @@ This will return a base64 encoded string that you can paste in your browser to r
 ### Unit Tests
 
 ```
-forge test
+forge test --via-ir -vvvv
 ```
