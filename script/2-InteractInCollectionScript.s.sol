@@ -8,7 +8,7 @@ import "../src/PostRevealNFT.sol";
 contract InteractInCollectionScript is Script {
     function run() external {
         vm.startBroadcast(); // Start broadcasting transactions
-        address spnftAddress = 0x5d305343d360bE82ca37bC1a645A8651fb9eaEDf;
+        address spnftAddress = 0x2C1e0E64a36c25519676f1501c35a5C25a4Ce08C;
         SPNFT spnft = SPNFT(payable(spnftAddress));
 
         // Mint out the collection (MAX_TOTAL_SUPPLY is currently set to 5)
