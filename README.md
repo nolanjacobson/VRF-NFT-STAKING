@@ -1,4 +1,4 @@
-# SCE-Take-Home
+# VRF-NFT-STAKING
 
 The goal of this exercise is to design and implement a SP NFT (ERC-721) with different 
 metadata revealing approaches. The solution should leverage Chainlink for random 
